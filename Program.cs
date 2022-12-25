@@ -32,6 +32,11 @@ if (!Directory.Exists(args[2]))
     PrintInColour($"Cannot find folder B ({args[2]})", ConsoleColor.Red);
     Environment.Exit(1);
 }
+if (sizeGB <= 0)
+{
+    PrintInColour($"Warning: SizeGB is <=0. This will mean all files will be sent to folder B", ConsoleColor.Yellow);
+    Thread.Sleep(1000);
+}
 
 // Set variables
 long maxSizeBytes = sizeGB * GigabyteSize;
