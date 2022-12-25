@@ -72,9 +72,7 @@ for (int i =0;i< files.Count; i++)
         if (File.Exists(newPath))
             continue;
         Console.WriteLine($"Moving {currentFile.Info.FullName} to Folder B");
-        if (!Directory.Exists(Path.GetDirectoryName(newPath)))
-            Directory.CreateDirectory(Path.GetDirectoryName(newPath));
-        currentFile.Info.MoveTo(newPath, false);
+        TryMoveFile(currentFile.Info, newPath);
     }
     else
     {
@@ -82,13 +80,17 @@ for (int i =0;i< files.Count; i++)
         string newPath = Path.Combine(folderA, currentFile.RelativePath);
         if (File.Exists(newPath))
             continue;
-        if (!Directory.Exists(Path.GetDirectoryName(newPath)))
-            Directory.CreateDirectory(Path.GetDirectoryName(newPath));
         Console.WriteLine($"Moving {currentFile.Info.FullName} to Folder A");
-        currentFile.Info.MoveTo(newPath, false);
+        TryMoveFile(currentFile.Info, newPath);
     }
 }
 
+void TryMoveFile(FileInfo file, string destinationPath)
+{
+    if (!Directory.Exists(Path.GetDirectoryName(destinationPath)))
+        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+    file.MoveTo(destinationPath, false);
+}
 
 List<string> GetFiles(string path)
 {
