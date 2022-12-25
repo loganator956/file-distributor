@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "file-distributor": {
+      "commandName": "Project",
+      "commandLineArgs": "10 \"C:\\Users\\logan\\Pictures\" \"E:\\sd\\DCIM\""
+    }
+  }
+}
