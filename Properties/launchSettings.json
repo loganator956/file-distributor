@@ -3,6 +3,14 @@
     "file-distributor": {
       "commandName": "Project",
       "commandLineArgs": "10 \"C:\\Users\\logan\\Pictures\" \"E:\\sd\\DCIM\""
+    },
+    "bad-directories": {
+      "commandName": "Project",
+      "commandLineArgs": "10 \"Z:\\CoolFakeFolderfsaf\" \"E:\\sd\\DCIM\""
+    },
+    "bad-size": {
+      "commandName": "Project",
+      "commandLineArgs": "7.2 \"Z:\\CoolFakeFolderfsaf\" \"E:\\sd\\DCIM\""
     }
   }
 }
