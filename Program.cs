@@ -65,30 +65,32 @@ for (int i =0;i< files.Count; i++)
 {
     file_distributor.File currentFile = files[i];
     currentBytes += currentFile.Info.Length;
+    string newPath = string.Empty;
     if (currentBytes > maxSizeBytes)
     {
         // move to folder B
-        string newPath = Path.Combine(folderB, currentFile.RelativePath);
-        if (File.Exists(newPath))
-            continue;
+        newPath = Path.Combine(folderB, currentFile.RelativePath);
         Console.WriteLine($"Moving {currentFile.Info.FullName} to Folder B");
-        if (!Directory.Exists(Path.GetDirectoryName(newPath)))
-            Directory.CreateDirectory(Path.GetDirectoryName(newPath));
-        currentFile.Info.MoveTo(newPath, false);
     }
     else
     {
         // move to folder A
-        string newPath = Path.Combine(folderA, currentFile.RelativePath);
-        if (File.Exists(newPath))
-            continue;
-        if (!Directory.Exists(Path.GetDirectoryName(newPath)))
-            Directory.CreateDirectory(Path.GetDirectoryName(newPath));
+        newPath = Path.Combine(folderA, currentFile.RelativePath);
         Console.WriteLine($"Moving {currentFile.Info.FullName} to Folder A");
-        currentFile.Info.MoveTo(newPath, false);
     }
+    // Attempt to move file, WITHOUT overwrite
+    if (string.IsNullOrEmpty(newPath) || File.Exists(newPath))
+        continue;
+    TryMoveFile(currentFile.Info, newPath);
 }
 
+void TryMoveFile(FileInfo file, string destinationPath)
+{
+    string parentDirectoryPath = Path.GetDirectoryName(destinationPath) ?? string.Empty;
+    if (!Directory.Exists(Path.GetDirectoryName(parentDirectoryPath)) && !string.IsNullOrEmpty(parentDirectoryPath))
+        Directory.CreateDirectory(parentDirectoryPath);
+    file.MoveTo(destinationPath, false);
+}
 
 List<string> GetFiles(string path)
 {
