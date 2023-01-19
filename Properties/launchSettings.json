@@ -2,7 +2,7 @@
   "profiles": {
     "NewArgs": {
       "commandName": "Project",
-      "commandLineArgs": "-a E:\\test1 -b E:\\test2 -s 1"
+      "commandLineArgs": "-a E:\\test -b E:\\test2 -s 1"
     }
   }
 }

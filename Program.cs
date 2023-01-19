@@ -76,16 +76,21 @@ string folderB = bPath;
 
 // Gather files and their FileInfos
 List<file_distributor.File> files = new List<file_distributor.File>();
-List<string> fileList = new List<string>();
-fileList.AddRange(GetFiles(folderA));
-fileList.AddRange(GetFiles(folderB));
-foreach (string file in fileList)
+List<string> fileListA = new List<string>();
+fileListA.AddRange(GetFiles(folderA));
+foreach (string file in fileListA)
 {
     string relPath = file.Replace(folderA, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
-    relPath = relPath.Replace(folderB, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
     files.Add(new(file, relPath));
 }
-
+List<string> fileListB = new List<string>();
+fileListB.AddRange(GetFiles(folderB));
+foreach (string file in fileListB)
+{
+    string relPath = file.Replace(folderB, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
+    files.Add(new(file, relPath));
+}
+;
 // sort files by modified date and get the top x amount that fits into sizeGB
 // sort files
 files.Sort((a, b) => a.Info.LastWriteTime.CompareTo(b.Info.LastWriteTime));
