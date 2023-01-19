@@ -17,6 +17,8 @@ string aPath = "";
 string bPath = "";
 string argSize = "";
 
+// Try get arguments
+
 try 
 {
     aPath = (string)arguments["folder-a"]; 
