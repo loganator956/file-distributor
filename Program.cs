@@ -13,10 +13,37 @@ const long GigabyteSize = 1024L * 1024L * 1024L;
 // Retrieve arguments
 Dictionary<string,object> arguments = ArgumentProcessor.Process(args);
 
-string aPath = (string)arguments["folder-a"];
-string bPath = (string)arguments["folder-b"];
-string argSize = (string)arguments["size"];
+string aPath = "";
+string bPath = "";
+string argSize = "";
 
+try 
+{
+    aPath = (string)arguments["folder-a"]; 
+}
+catch (KeyNotFoundException keyE)
+{ 
+    PrintInColour("--folder-a not set", ConsoleColor.Red);
+    Environment.Exit(1);
+}
+try
+{
+    bPath = (string)arguments["folder-b"];
+}
+catch (KeyNotFoundException keyE)
+{
+    PrintInColour("--folder-b not set", ConsoleColor.Red);
+    Environment.Exit(1);
+}
+try
+{
+    argSize = (string)arguments["size"];
+}
+catch( KeyNotFoundException keyE)
+{
+    PrintInColour("--size not set", ConsoleColor.Red);
+    Environment.Exit(1);
+}
 ;
 // Check arguments
 
