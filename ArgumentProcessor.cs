@@ -18,7 +18,7 @@ namespace file_distributor
             for (int i = 0; i < args.Length; i++)
             {
                 string arg = args[i];
-                if (arg.StartsWith('-'))
+                if (arg.StartsWith('-') && !arg.StartsWith("--"))
                 {
                     arg = arg.TrimStart('-');
                     foreach(char c in arg)
