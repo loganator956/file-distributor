@@ -1,16 +1,8 @@
 {
   "profiles": {
-    "file-distributor": {
+    "NewArgs": {
       "commandName": "Project",
-      "commandLineArgs": "10 \"C:\\Users\\logan\\Pictures\" \"E:\\sd\\DCIM\""
-    },
-    "bad-directories": {
-      "commandName": "Project",
-      "commandLineArgs": "10 \"Z:\\CoolFakeFolderfsaf\" \"E:\\sd\\DCIM\""
-    },
-    "bad-size": {
-      "commandName": "Project",
-      "commandLineArgs": "7.2 \"Z:\\CoolFakeFolderfsaf\" \"E:\\sd\\DCIM\""
+      "commandLineArgs": "-a E:\\test -b E:\\test2 -s 1"
     }
   }
 }
