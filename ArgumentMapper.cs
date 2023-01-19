@@ -13,6 +13,7 @@ namespace file_distributor
             { "a", "folder-a" },
             { "b", "folder-b" },
             { "s", "size" },
+            { "m", "monitor" },
             { "h", "help" }
         };
     }

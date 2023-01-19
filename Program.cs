@@ -46,8 +46,11 @@ catch( KeyNotFoundException keyE)
     PrintInColour("--size not set", ConsoleColor.Red);
     Environment.Exit(1);
 }
-;
-// Check arguments
+
+// Optional Data
+bool enableMonitorMode = arguments.TryGetValue("monitor", out _);
+
+// Verify argument data
 
 int sizeGB = -1;
 if (!int.TryParse(argSize, out sizeGB))
@@ -71,55 +74,69 @@ if (sizeGB <= 0)
     Thread.Sleep(1000);
 }
 
-// Set variables
-long maxSizeBytes = sizeGB * GigabyteSize;
-string folderA = aPath;
-string folderB = bPath;
+if (!enableMonitorMode)
+{
+    DistributeFiles();
+}
 
-// Gather files and their FileInfos
-List<file_distributor.File> files = new List<file_distributor.File>();
-List<string> fileListA = new List<string>();
-fileListA.AddRange(GetFiles(folderA));
-foreach (string file in fileListA)
+while (enableMonitorMode)
 {
-    string relPath = file.Replace(folderA, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
-    files.Add(new(file, relPath));
+    DistributeFiles();
+    Thread.Sleep(300000);
 }
-List<string> fileListB = new List<string>();
-fileListB.AddRange(GetFiles(folderB));
-foreach (string file in fileListB)
+
+void DistributeFiles()
 {
-    string relPath = file.Replace(folderB, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
-    files.Add(new(file, relPath));
-}
+    // Set variables
+    long maxSizeBytes = sizeGB * GigabyteSize;
+    string folderA = aPath;
+    string folderB = bPath;
+
+    // Gather files and their FileInfos
+    List<file_distributor.File> files = new List<file_distributor.File>();
+    List<string> fileListA = new List<string>();
+    fileListA.AddRange(GetFiles(folderA));
+    foreach (string file in fileListA)
+    {
+        string relPath = file.Replace(folderA, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
+        files.Add(new(file, relPath));
+    }
+    List<string> fileListB = new List<string>();
+    fileListB.AddRange(GetFiles(folderB));
+    foreach (string file in fileListB)
+    {
+        string relPath = file.Replace(folderB, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
+        files.Add(new(file, relPath));
+    }
 ;
-// sort files by modified date and get the top x amount that fits into sizeGB
-// sort files
-files.Sort((a, b) => a.Info.LastWriteTime.CompareTo(b.Info.LastWriteTime));
-files.Reverse(); // make descending order
+    // sort files by modified date and get the top x amount that fits into sizeGB
+    // sort files
+    files.Sort((a, b) => a.Info.LastWriteTime.CompareTo(b.Info.LastWriteTime));
+    files.Reverse(); // make descending order
 
-long currentBytes = 0; // keeps track of the amount of bytes assigned to folder A
-for (int i =0;i< files.Count; i++)
-{
-    file_distributor.File currentFile = files[i];
-    currentBytes += currentFile.Info.Length;
-    string newPath = string.Empty;
-    if (currentBytes > maxSizeBytes)
+    long currentBytes = 0; // keeps track of the amount of bytes assigned to folder A
+    for (int i = 0; i < files.Count; i++)
     {
-        // move to folder B
-        newPath = Path.Combine(folderB, currentFile.RelativePath);
-        Console.WriteLine($"Moving {currentFile.Info.FullName} to Folder B");
+        file_distributor.File currentFile = files[i];
+        currentBytes += currentFile.Info.Length;
+        string newPath = string.Empty;
+        if (currentBytes > maxSizeBytes)
+        {
+            // move to folder B
+            newPath = Path.Combine(folderB, currentFile.RelativePath);
+            Console.WriteLine($"Moving {currentFile.Info.FullName} to Folder B");
+        }
+        else
+        {
+            // move to folder A
+            newPath = Path.Combine(folderA, currentFile.RelativePath);
+            Console.WriteLine($"Moving {currentFile.Info.FullName} to Folder A");
+        }
+        // Attempt to move file, WITHOUT overwrite
+        if (string.IsNullOrEmpty(newPath) || System.IO.File.Exists(newPath))
+            continue;
+        TryMoveFile(currentFile.Info, newPath);
     }
-    else
-    {
-        // move to folder A
-        newPath = Path.Combine(folderA, currentFile.RelativePath);
-        Console.WriteLine($"Moving {currentFile.Info.FullName} to Folder A");
-    }
-    // Attempt to move file, WITHOUT overwrite
-    if (string.IsNullOrEmpty(newPath) || System.IO.File.Exists(newPath))
-        continue;
-    TryMoveFile(currentFile.Info, newPath);
 }
 
 void TryMoveFile(FileInfo file, string destinationPath)
