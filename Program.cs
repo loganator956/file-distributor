@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using file_distributor;
 
 // Version Printing
 ProcessModule? module = Process.GetCurrentProcess().MainModule;
@@ -9,27 +10,30 @@ Console.WriteLine($"file-distributor version {module.FileVersionInfo.FileVersion
 // Data size conversions
 const long GigabyteSize = 1024L * 1024L * 1024L;
 
+// Retrieve arguments
+Dictionary<string,object> arguments = ArgumentProcessor.Process(args);
+
+string aPath = (string)arguments["folder-a"];
+string bPath = (string)arguments["folder-b"];
+string argSize = (string)arguments["size"];
+
+;
 // Check arguments
-if (args.Length != 3)
-{
-    PrintInColour($"Incorrect number of arguments. Received: {args.Length}; Expected 3", ConsoleColor.Red);
-    Environment.Exit(1);
-}
 
 int sizeGB = -1;
-if (!int.TryParse(args[0], out sizeGB))
+if (!int.TryParse(argSize, out sizeGB))
 {
-    PrintInColour($"Cannot parse argument 0 ({args[0]}) to int. Ensure you only entering a plain integer number, eg '2'", ConsoleColor.Red);
+    PrintInColour($"Cannot parse argument 0 ({argSize}) to int. Ensure you only entering a plain integer number, eg '2'", ConsoleColor.Red);
     Environment.Exit(1);
 }
-if (!Directory.Exists(args[1]))
+if (!Directory.Exists(aPath))
 {
-    PrintInColour($"Cannot find folder A ({args[1]})", ConsoleColor.Red);
+    PrintInColour($"Cannot find folder A ({aPath})", ConsoleColor.Red);
     Environment.Exit(1);
 }
-if (!Directory.Exists(args[2]))
+if (!Directory.Exists(bPath))
 {
-    PrintInColour($"Cannot find folder B ({args[2]})", ConsoleColor.Red);
+    PrintInColour($"Cannot find folder B ({bPath})", ConsoleColor.Red);
     Environment.Exit(1);
 }
 if (sizeGB <= 0)
@@ -40,8 +44,8 @@ if (sizeGB <= 0)
 
 // Set variables
 long maxSizeBytes = sizeGB * GigabyteSize;
-string folderA = args[1];
-string folderB = args[2];
+string folderA = aPath;
+string folderB = bPath;
 
 // Gather files and their FileInfos
 List<file_distributor.File> files = new List<file_distributor.File>();
@@ -79,7 +83,7 @@ for (int i =0;i< files.Count; i++)
         Console.WriteLine($"Moving {currentFile.Info.FullName} to Folder A");
     }
     // Attempt to move file, WITHOUT overwrite
-    if (string.IsNullOrEmpty(newPath) || File.Exists(newPath))
+    if (string.IsNullOrEmpty(newPath) || System.IO.File.Exists(newPath))
         continue;
     TryMoveFile(currentFile.Info, newPath);
 }
