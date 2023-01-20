@@ -3,6 +3,10 @@
     "NewArgs": {
       "commandName": "Project",
       "commandLineArgs": "-a E:\\test -b E:\\test2 -s 1"
+    },
+    "Profile 1": {
+      "commandName": "Project",
+      "commandLineArgs": "-h"
     }
   }
 }
