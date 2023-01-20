@@ -11,7 +11,7 @@ Console.WriteLine($"file-distributor version {module.FileVersionInfo.FileVersion
 const long GigabyteSize = 1024L * 1024L * 1024L;
 
 // Retrieve arguments
-Dictionary<string,object> arguments = ArgumentProcessor.Process(args);
+List<Argument> arguments = ArgumentProcessor.Process(args);
 
 string aPath = "";
 string bPath = "";
@@ -21,7 +21,7 @@ string argSize = "";
 
 try 
 {
-    aPath = (string)arguments["folder-a"]; 
+    aPath = arguments.Find(x => x.Name == "folder-a").Value; 
 }
 catch (KeyNotFoundException keyE)
 { 
@@ -30,7 +30,7 @@ catch (KeyNotFoundException keyE)
 }
 try
 {
-    bPath = (string)arguments["folder-b"];
+    bPath = arguments.Find(x => x.Name == "folder-b").Value; 
 }
 catch (KeyNotFoundException keyE)
 {
@@ -39,7 +39,7 @@ catch (KeyNotFoundException keyE)
 }
 try
 {
-    argSize = (string)arguments["size"];
+    argSize = arguments.Find(x => x.Name == "size").Value;
 }
 catch( KeyNotFoundException keyE)
 {
@@ -48,7 +48,7 @@ catch( KeyNotFoundException keyE)
 }
 
 // Optional Data
-bool enableMonitorMode = arguments.TryGetValue("monitor", out _);
+bool enableMonitorMode = bool.TryParse((arguments.Find(x => x.Name == "monitor")).Value, out _);
 
 // Verify argument data
 
