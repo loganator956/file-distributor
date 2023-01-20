@@ -23,7 +23,7 @@ try
 {
     aPath = arguments.Find(x => x.Name == "folder-a").Value; 
 }
-catch (KeyNotFoundException keyE)
+catch (KeyNotFoundException)
 { 
     PrintInColour("--folder-a not set", ConsoleColor.Red);
     Environment.Exit(1);
@@ -32,7 +32,7 @@ try
 {
     bPath = arguments.Find(x => x.Name == "folder-b").Value; 
 }
-catch (KeyNotFoundException keyE)
+catch (KeyNotFoundException)
 {
     PrintInColour("--folder-b not set", ConsoleColor.Red);
     Environment.Exit(1);
@@ -41,7 +41,7 @@ try
 {
     argSize = arguments.Find(x => x.Name == "size").Value;
 }
-catch( KeyNotFoundException keyE)
+catch( KeyNotFoundException)
 {
     PrintInColour("--size not set", ConsoleColor.Red);
     Environment.Exit(1);
