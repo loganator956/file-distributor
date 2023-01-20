@@ -8,9 +8,9 @@ namespace file_distributor
 {
     internal static class ArgumentProcessor
     {
-        public static Dictionary<string, object> Process(string[] args)
+        public static List<Argument> Process(string[] args)
         {
-            Dictionary<string,object> arguments= new Dictionary<string,object>();
+            List<Argument> arguments= new List<Argument>();
 
             List<string> parts = new List<string>();
 
@@ -43,7 +43,7 @@ namespace file_distributor
             // Convert arguments list to a dictionary
             for (int i = 0; i < parts.Count; i++)
             {
-                object value = true;
+                string value = "true";
                 string argument = parts[i];
                 if (!argument.StartsWith("--"))
                 {
@@ -61,7 +61,7 @@ namespace file_distributor
                     }
                 }
 
-                arguments.Add(argument.TrimStart('-'), value);
+                arguments.Add(new Argument(argument.TrimStart('-'), value));
             }
 
             return arguments;
