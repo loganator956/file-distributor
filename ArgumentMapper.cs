@@ -14,6 +14,7 @@ namespace file_distributor
             { "b", "folder-b" },
             { "s", "size" },
             { "m", "monitor" },
+            { "i", "ignore-keyword" },
             { "h", "help" }
         };
     }
