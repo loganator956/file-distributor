@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Xml;
 using file_distributor;
 
 // Version Printing
@@ -49,6 +50,18 @@ catch( KeyNotFoundException)
 
 // Optional Data
 bool enableMonitorMode = bool.TryParse((arguments.Find(x => x.Name == "monitor")).Value, out _);
+
+// ignore information
+List<string> ignoredKeywords = new List<string>();
+foreach(Argument arg in arguments.FindAll(x => x.Name == "ignore-keyword"))
+{
+    ignoredKeywords.Add(arg.Value);
+}
+List<string> ignoredFiles = new List<string>();
+foreach(Argument arg in arguments.FindAll(x => x.Name == "ignore-file"))
+{
+    ignoredFiles.Add(arg.Value);
+}
 
 // Verify argument data
 
@@ -121,6 +134,8 @@ void DistributeFiles()
         currentBytes += currentFile.Info.Length;
         string newPath = string.Empty;
         bool isATarget = false;
+        if (!CheckPath(currentFile.RelativePath, ignoredKeywords, ignoredFiles))
+            continue;
         if (currentBytes > maxSizeBytes)
         {
             // move to folder B
@@ -140,6 +155,23 @@ void DistributeFiles()
             continue;
         TryMoveFile(currentFile.Info, newPath, isATarget);
     }
+}
+
+bool CheckPath(string path, List<string> keywords, List<string> fileNames)
+{
+    foreach(string keyword in keywords)
+    {
+        if (path.Contains(keyword))
+            return false;
+    }
+
+    foreach(string name in fileNames)
+    {
+        if (Path.GetFileName(path).Contains(name))
+            return false;
+    }
+
+    return true;
 }
 
 void TryMoveFile(FileInfo file, string destinationPath, bool isATarget)
