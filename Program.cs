@@ -20,6 +20,12 @@ string argSize = "";
 
 // Try get arguments
 
+if (bool.TryParse(arguments.Find(x => x.Name == "help").Value, out _))
+{
+    PrintHelp();
+    Environment.Exit(0);
+}
+
 try 
 {
     aPath = arguments.Find(x => x.Name == "folder-a").Value; 
@@ -198,4 +204,20 @@ void PrintInColour(string message, ConsoleColor colour)
     Console.ForegroundColor = colour;
     Console.WriteLine(message);
     Console.ForegroundColor = prevColour;
+}
+
+void PrintHelp()
+{
+    Console.WriteLine(@"file-distributor help
+REQUIRED OPTIONS
+SHORT   LONG            DESC
+-a      --folder-a      Path for folder A
+-b      --folder-b      Path for folder B
+-s      --size          Maximum sized for folder A
+
+OPTIONAL OPTIONS
+SHORT   LONG                DESC
+-m      --monitor           Monitor mode
+-i      --ignore-keyword    Specify a keyword to ignore (Can be used multiple times)
+-h      --help              Display this help page");
 }
