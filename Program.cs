@@ -26,29 +26,20 @@ if (bool.TryParse(arguments.Find(x => x.Name == "help").Value, out _))
     Environment.Exit(0);
 }
 
-try 
+    aPath = arguments.Find(x => x.Name == "folder-a").Value;
+if (string.IsNullOrEmpty(aPath))
 {
-    aPath = arguments.Find(x => x.Name == "folder-a").Value; 
-}
-catch (KeyNotFoundException)
-{ 
     PrintInColour("--folder-a not set", ConsoleColor.Red);
     Environment.Exit(1);
 }
-try
-{
     bPath = arguments.Find(x => x.Name == "folder-b").Value; 
-}
-catch (KeyNotFoundException)
+if (string.IsNullOrEmpty(bPath))
 {
     PrintInColour("--folder-b not set", ConsoleColor.Red);
     Environment.Exit(1);
 }
-try
-{
     argSize = arguments.Find(x => x.Name == "size").Value;
-}
-catch( KeyNotFoundException)
+if (string.IsNullOrEmpty(argSize))
 {
     PrintInColour("--size not set", ConsoleColor.Red);
     Environment.Exit(1);
@@ -64,7 +55,7 @@ foreach(Argument arg in arguments.FindAll(x => x.Name == "ignore-keyword"))
     ignoredKeywords.Add(arg.Value);
 }
 List<string> ignoredFiles = new List<string>();
-foreach(Argument arg in arguments.FindAll(x => x.Name == "ignore-file"))
+foreach (Argument arg in arguments.FindAll(x => x.Name == "ignore-file"))
 {
     ignoredFiles.Add(arg.Value);
 }
