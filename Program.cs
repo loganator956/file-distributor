@@ -174,7 +174,7 @@ bool CheckPath(string path, List<string> keywords, List<string> fileNames)
 void TryMoveFile(FileInfo file, string destinationPath, bool isATarget)
 {
     string parentDirectoryPath = Path.GetDirectoryName(destinationPath) ?? string.Empty;
-    if (!Directory.Exists(Path.GetDirectoryName(parentDirectoryPath)) && !string.IsNullOrEmpty(parentDirectoryPath))
+    if (!Directory.Exists(parentDirectoryPath) && !string.IsNullOrEmpty(parentDirectoryPath))
         Directory.CreateDirectory(parentDirectoryPath);
     Console.WriteLine($"[{(isATarget ? "B -> A" : "A -> B")}] {file.FullName} TO {destinationPath}");
     file.MoveTo(destinationPath, false);
