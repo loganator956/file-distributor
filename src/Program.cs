@@ -64,6 +64,9 @@ if (string.IsNullOrEmpty(argSize))
 
 // Optional Data
 bool enableMonitorMode = bool.TryParse((arguments.Find(x => x.Name == "monitor")).Value, out _);
+ArgumentProcessor.TryGetEnvVariable("FD_MONITOR_MODE", out _tempArg);
+if (_tempArg is not null)
+    bool.TryParse(_tempArg.Value.Value, out enableMonitorMode);
 
 // ignore information
 List<string> ignoredKeywords = new List<string>();
