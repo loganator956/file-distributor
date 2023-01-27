@@ -8,18 +8,34 @@ Little tool to help distribute files across folders. Keeps the latest (according
 file-distributor [options]
 ```
 
+### Docker
+
+Currently, will need to manually build the Dockerfile using following command.
+
+```bash
+podman build -t file-distributor .
+```
+
+Then you can run it:
+
+```bash
+podman run --name "distribute" -v /path/to/folder-a:/folder-a -v /mnt/e/test2:/folder-b -e FD_SIZE=10 localhost/file-distributor
+```
+
+Replace the host paths for the volumes with paths to your directories. By default this runs in monitor mode. If you want to disable this, add the `-e FD_MONITOR_MODE=false` argument.
+
 ### Required Options
 
-| Short | Long | Descripion |
-| --- | --- | --- |
-| `-a` | `--folder-a` | Path for folder A |
-| `-b` | `--folder-b` | Path for folder B |
-| `-s` | `--size` | Maximum size for folder a |
+| Short | Long | Environment Variable | Descripion |
+| --- | --- | --- | --- |
+| `-a` | `--folder-a` | `FD_FOLDER_A` | Path for folder A |
+| `-b` | `--folder-b` | `FD_FOLDER_B` | Path for folder B |
+| `-s` | `--size` | `FD_SIZE` | Maximum size for folder a |
 
 ### Optional Options
 
-| Short | Long | Description |
-| --- | --- | --- |
-| `-m` | `--monitor` | Monitor mode |
-| `-i` | `--ignore-keyword` | Specify a keyword to ignore (Can be used multiple times) |
-| `-h` | `--help` | Diplay the help page |
+| Short | Long |  | Description |
+| --- | --- | --- | --- |
+| `-m` | `--monitor` | `FD_MONITOR_MODE` | Monitor mode |
+| `-i` | `--ignore-keyword` | n/a | Specify a keyword to ignore (Can be used multiple times) |
+| `-h` | `--help` | n/a | Diplay the help page |
