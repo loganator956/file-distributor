@@ -1,3 +1,5 @@
+cd src
+
 dotnet publish -c Release --self-contained true -r win-x64
 dotnet publish -c Release --self-contained true -r linux-x64
 dotnet publish -c Release --self-contained true -r linux-arm
