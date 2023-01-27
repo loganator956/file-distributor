@@ -8,6 +8,18 @@ namespace file_distributor
 {
     internal static class ArgumentProcessor
     {
+        public static bool TryGetEnvVariable(string name, out Argument? arg)
+        {
+            string? val = Environment.GetEnvironmentVariable(name);
+            if (val != null)
+            {
+                arg = new Argument(name, val);
+                return true;
+            }
+            arg = null;
+            return false;
+        }
+
         public static List<Argument> Process(string[] args)
         {
             List<Argument> arguments= new List<Argument>();

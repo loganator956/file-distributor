@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "file-distributor": {
+      "commandName": "Project"
+    },
+    "Profile 1": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "size": "2",
+        "folder-a": "E:\\test",
+        "folder-b": "E:\\test2"
+      }
+    }
+  }
+}

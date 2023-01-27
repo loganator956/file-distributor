@@ -26,19 +26,36 @@ if (bool.TryParse(arguments.Find(x => x.Name == "help").Value, out _))
     Environment.Exit(0);
 }
 
-    aPath = arguments.Find(x => x.Name == "folder-a").Value;
+aPath = arguments.Find(x => x.Name == "folder-a").Value;
+Argument? _tempArg;
+ArgumentProcessor.TryGetEnvVariable("FD_FOLDER_A", out _tempArg);
+if (_tempArg is not null)
+    aPath = _tempArg.Value.Value;
+
 if (string.IsNullOrEmpty(aPath))
 {
     PrintInColour("--folder-a not set", ConsoleColor.Red);
     Environment.Exit(1);
 }
-    bPath = arguments.Find(x => x.Name == "folder-b").Value; 
+
+
+bPath = arguments.Find(x => x.Name == "folder-b").Value;
+ArgumentProcessor.TryGetEnvVariable("FD_FOLDER_B", out _tempArg);
+if (_tempArg is not null)
+    bPath = _tempArg.Value.Value;
+
 if (string.IsNullOrEmpty(bPath))
 {
     PrintInColour("--folder-b not set", ConsoleColor.Red);
     Environment.Exit(1);
 }
-    argSize = arguments.Find(x => x.Name == "size").Value;
+
+
+argSize = arguments.Find(x => x.Name == "size").Value;
+ArgumentProcessor.TryGetEnvVariable("FD_SIZE", out _tempArg);
+if (_tempArg is not null)
+    argSize = _tempArg.Value.Value;
+
 if (string.IsNullOrEmpty(argSize))
 {
     PrintInColour("--size not set", ConsoleColor.Red);
