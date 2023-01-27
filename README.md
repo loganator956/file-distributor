@@ -38,7 +38,7 @@ Replace the host paths for the volumes with paths to your directories. By defaul
 
 ### Optional Options
 
-| Short | Long |  | Description |
+| Short | Long | Environment Variable | Description |
 | --- | --- | --- | --- |
 | `-m` | `--monitor` | `FD_MONITOR_MODE` | Monitor mode |
 | `-i` | `--ignore-keyword` | n/a | Specify a keyword to ignore (Can be used multiple times) |
