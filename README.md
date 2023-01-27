@@ -13,13 +13,17 @@ file-distributor [options]
 Currently, will need to manually build the Dockerfile using following command.
 
 ```bash
-podman build -t file-distributor .
+docker build -t file-distributor .
 ```
 
 Then you can run it:
 
 ```bash
-podman run --name "distribute" -v /path/to/folder-a:/folder-a -v /mnt/e/test2:/folder-b -e FD_SIZE=10 localhost/file-distributor
+docker run --name "distribute" \
+-v /path/to/folder-a:/folder-a \
+-v /mnt/e/test2:/folder-b \
+-e FD_SIZE=10 \
+localhost/file-distributor
 ```
 
 Replace the host paths for the volumes with paths to your directories. By default this runs in monitor mode. If you want to disable this, add the `-e FD_MONITOR_MODE=false` argument.
