@@ -11,7 +11,14 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3
       
+    # Install dotnet 6
     - name: setup-dotnet
       uses: actions/setup-dotnet@v3.0.3
       with:
         dotnet-version: 6.0.x
+    
+    # run build script
+    - name: build-script
+      shell: pwsh
+      run: |
+        .\build.ps1
