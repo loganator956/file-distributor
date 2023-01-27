@@ -43,4 +43,4 @@ jobs:
           docker_image: file-distributor
           docker_username: loganator956
           docker_password: ${{ secrets.GHPAT }}
-          dockefile: Dockerfile
+          dockerfile: Dockerfile
