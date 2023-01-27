@@ -27,4 +27,19 @@ jobs:
       uses: actions/upload-artifact@v3.1.2
       with:
         path: src/bin/file-distributor.*.zip
-          
+    
+  dockerbuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and Publish Dockerfile
+        # You may pin to the exact commit or the version.
+        # uses: ryanjfrizzell/action-bpd@7d6d0456081acbdbe2adeae5da1d14f1a0e54498
+        uses: ryanjfrizzell/action-bpd@v1.0.2
+        with:
+          docker_registry_url: ghcr.io
+          docker_registry_owner: loganator956
+          docker_repository: file-distributor
+          docker_image: file-distributor
+          docker_username: loganator956
+          docker_password: ${{ secrets.GHPAT }}
+          dockefile: Dockerfile
