@@ -1,7 +1,7 @@
 name: Main actions
 run-name: Building project
 on:
-  label:
+  release:
     types: [created, edited]
 jobs:
   build:
