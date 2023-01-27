@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Xml;
 using file_distributor;
 
 // Version Printing
-ProcessModule? module = Process.GetCurrentProcess().MainModule;
-if (module is null)
-    throw new NullReferenceException("MainModule of current process is null");
-Console.WriteLine($"file-distributor version {module.FileVersionInfo.FileVersion}\n");
+Version appVersion = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(-1, -1);
+string versionString = $"V{appVersion.Major}.{appVersion.Minor}.{appVersion.Build}.{appVersion.Revision}";
+Console.WriteLine($"file-distributor version {versionString}\n");
 
 // Data size conversions
 const long GigabyteSize = 1024L * 1024L * 1024L;
