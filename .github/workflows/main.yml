@@ -3,6 +3,7 @@ run-name: Building project
 on:
   release:
     types: [published]
+  workflow_call:
 jobs:
   build:
     runs-on: windows-latest
