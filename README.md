@@ -4,9 +4,13 @@ Little tool to help distribute files across folders. Keeps the latest (according
 
 ## Usage
 
+Download the executable file for your platform and execute it like: 
+
 ```cmd
 file-distributor [options]
 ```
+
+May need to add executable permissions to the file.
 
 ### Docker
 
