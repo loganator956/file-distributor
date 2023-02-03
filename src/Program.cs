@@ -138,7 +138,7 @@ void DistributeFiles()
         string relPath = file.Replace(folderB, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
         files.Add(new(file, relPath));
     }
-;
+
     // sort files by modified date and get the top x amount that fits into sizeGB
     // sort files
     files.Sort((a, b) => a.Info.LastWriteTime.CompareTo(b.Info.LastWriteTime));
