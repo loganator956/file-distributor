@@ -16,6 +16,7 @@ namespace file_distributor
             { "m", "monitor" },
             { "i", "ignore-keyword" },
             { "f", "ignore-file" },
+            { "w", "wait-interval" },
             { "h", "help" }
         };
     }
