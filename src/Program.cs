@@ -8,6 +8,9 @@ Version appVersion = Assembly.GetExecutingAssembly().GetName().Version ?? new Ve
 string versionString = $"V{appVersion.Major}.{appVersion.Minor}.{appVersion.Build}.{appVersion.Revision}";
 Console.WriteLine($"file-distributor version {versionString}\n");
 
+const int DefaultVerbosity = 1;
+int verbosityLevel = 1;
+
 // Data size conversions
 const long GigabyteSize = 1024L * 1024L * 1024L;
 
@@ -146,10 +149,14 @@ while (enableMonitorMode)
 }
 
 // Print config summary
-Console.WriteLine(@$"Config:
+Print(@$"Config:
 Folder A: {aPath}
 Folder B: {bPath}
-Size of A: {sizeGB}");
+Size of A: {sizeGB}", 1);
+foreach(string keyword in ignoredKeywords)
+{
+    Print($"Ignored Keyword: {keyword}", 2);
+}
 
 void DistributeFiles()
 {
@@ -226,12 +233,13 @@ void TryMoveFile(FileInfo file, string destinationPath, bool isATarget)
     string parentDirectoryPath = Path.GetDirectoryName(destinationPath) ?? string.Empty;
     if (!Directory.Exists(parentDirectoryPath) && !string.IsNullOrEmpty(parentDirectoryPath))
         Directory.CreateDirectory(parentDirectoryPath);
-    Console.WriteLine($"[{(isATarget ? "B -> A" : "A -> B")}] {file.FullName} TO {destinationPath}");
+    Print($"[{(isATarget ? "B -> A" : "A -> B")}] {file.FullName} TO {destinationPath}", 1);
     file.MoveTo(destinationPath, false);
 }
 
 List<string> GetFiles(string path)
 {
+    Print($"Discovering Files: {path}", 2);
     List<string> files = new List<string>();
     files.AddRange(Directory.GetFiles(path));
     foreach (string subDir in Directory.GetDirectories(path))
@@ -245,6 +253,12 @@ void PrintInColour(string message, ConsoleColor colour)
     Console.ForegroundColor = colour;
     Console.WriteLine(message);
     Console.ForegroundColor = prevColour;
+}
+
+void Print(string message, int requiredVerbosity)
+{
+    if (verbosityLevel >= requiredVerbosity)
+        Console.WriteLine(message);
 }
 
 void PrintHelp()
