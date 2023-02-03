@@ -285,5 +285,8 @@ OPTIONAL OPTIONS
 SHORT   LONG                DESC
 -m      --monitor           Monitor mode
 -i      --ignore-keyword    Specify a keyword to ignore (Can be used multiple times)
--h      --help              Display this help page");
+-h      --help              Display this help page
+-f      --ignore-file       Specifies a path to a file containing ignored keywords. (Each line is a separate keyword. Ignores lines starting with #)
+-v      --verbose           Specifies the verbosity level. (Either by calling argument multiple times or specifying a value for argument)
+-w      --wait-interval     Specifies the amount of time (seconds) between running the distribute files in ""monitor"" mode");
 }
