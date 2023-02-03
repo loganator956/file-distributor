@@ -17,6 +17,8 @@ List<Argument> arguments = ArgumentProcessor.Process(args);
 string aPath = "";
 string bPath = "";
 string argSize = "";
+const int MonitorWaitSecondsDefault = 300;
+int monitorWaitSeconds = MonitorWaitSecondsDefault;
 
 // Try get arguments
 
@@ -68,6 +70,15 @@ ArgumentProcessor.TryGetEnvVariable("FD_MONITOR_MODE", out _tempArg);
 if (_tempArg is not null)
     bool.TryParse(_tempArg.Value.Value, out enableMonitorMode);
 
+int.TryParse(arguments.Find(x => x.Name == "wait-interval").Value, out monitorWaitSeconds);
+ArgumentProcessor.TryGetEnvVariable("FD_MONITOR_WAIT_INTERVAL", out _tempArg);
+if (_tempArg is not null)
+    int.TryParse(_tempArg.Value.Value, out monitorWaitSeconds);
+if (monitorWaitSeconds <= 0)
+{
+    monitorWaitSeconds = MonitorWaitSecondsDefault;
+}
+;
 // ignore information
 List<string> ignoredKeywords = new List<string>();
 foreach(Argument arg in arguments.FindAll(x => x.Name == "ignore-keyword"))
@@ -131,7 +142,7 @@ if (!enableMonitorMode)
 while (enableMonitorMode)
 {
     DistributeFiles();
-    Thread.Sleep(300000);
+    Thread.Sleep(monitorWaitSeconds * 1000);
 }
 
 // Print config summary
