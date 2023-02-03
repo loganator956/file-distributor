@@ -74,10 +74,29 @@ foreach(Argument arg in arguments.FindAll(x => x.Name == "ignore-keyword"))
 {
     ignoredKeywords.Add(arg.Value);
 }
-List<string> ignoredFiles = new List<string>();
-foreach (Argument arg in arguments.FindAll(x => x.Name == "ignore-file"))
+string ignoredFilePath = arguments.Find(x => x.Name == "ignore-file").Value;
+ArgumentProcessor.TryGetEnvVariable("FD_IGNORE_FILE", out _tempArg);
+if (_tempArg is not null)
+    ignoredFilePath = _tempArg.Value.Value;
+
+if (!string.IsNullOrEmpty(ignoredFilePath))
 {
-    ignoredFiles.Add(arg.Value);
+    // ignore file specified 
+    // read ignore file
+    if (System.IO.File.Exists(ignoredFilePath))
+    {
+        string[] lines = System.IO.File.ReadAllLines(ignoredFilePath);
+        foreach(string line in lines)
+        {
+            if (line.StartsWith('#'))
+                continue;
+            ignoredKeywords.Add(line);
+        }
+    }
+    else
+    {
+        PrintInColour($"Cannot find {ignoredFilePath}", ConsoleColor.Red);
+    }
 }
 
 // Verify argument data
@@ -157,7 +176,7 @@ void DistributeFiles()
         currentBytes += currentFile.Info.Length;
         string newPath = string.Empty;
         bool isATarget = false;
-        if (!CheckPath(currentFile.RelativePath, ignoredKeywords, ignoredFiles))
+        if (!CheckPath(currentFile.RelativePath, ignoredKeywords))
             continue;
         if (currentBytes > maxSizeBytes)
         {
@@ -180,17 +199,11 @@ void DistributeFiles()
     }
 }
 
-bool CheckPath(string path, List<string> keywords, List<string> fileNames)
+bool CheckPath(string path, List<string> keywords)
 {
     foreach(string keyword in keywords)
     {
         if (path.Contains(keyword))
-            return false;
-    }
-
-    foreach(string name in fileNames)
-    {
-        if (Path.GetFileName(path).Contains(name))
             return false;
     }
 

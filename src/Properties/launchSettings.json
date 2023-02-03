@@ -5,11 +5,7 @@
     },
     "Profile 1": {
       "commandName": "Project",
-      "environmentVariables": {
-        "size": "2",
-        "folder-a": "E:\\test",
-        "folder-b": "E:\\test2"
-      }
+      "commandLineArgs": "-a \"E:\\test\" -b \"E:\\test2\" -s 1 -f \"E:\\ignore.txt\""
     }
   }
 }
