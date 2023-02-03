@@ -15,6 +15,7 @@ namespace file_distributor
             { "s", "size" },
             { "m", "monitor" },
             { "i", "ignore-keyword" },
+            { "f", "ignore-file" },
             { "h", "help" }
         };
     }
