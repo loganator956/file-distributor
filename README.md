@@ -47,3 +47,6 @@ Replace the host paths for the volumes with paths to your directories. By defaul
 | `-m` | `--monitor` | `FD_MONITOR_MODE` | Monitor mode |
 | `-i` | `--ignore-keyword` | n/a | Specify a keyword to ignore (Can be used multiple times) |
 | `-h` | `--help` | n/a | Diplay the help page |
+| `-f` | `--ignore-file` | `FD_IGNORE_FILE` | Specifies a path to a file containing ignored keywords. (Each line is a separate keyword. Ignores lines starting with `#`) |
+| `-v` | `--verbose` | n/a | Specifies the verbosity level. (Either by calling argument multiple times or specifying a value for argument) |
+| `-w` | `--wait-interval` | `FD_MONITOR_WAIT_INTERVAL` | Specifies the amount of time (seconds) between running the distribute files in "monitor" mode |
