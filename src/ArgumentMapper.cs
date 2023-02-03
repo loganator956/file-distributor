@@ -17,6 +17,7 @@ namespace file_distributor
             { "i", "ignore-keyword" },
             { "f", "ignore-file" },
             { "w", "wait-interval" },
+            { "v", "verbose" },
             { "h", "help" }
         };
     }

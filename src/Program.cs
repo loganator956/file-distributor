@@ -8,6 +8,8 @@ Version appVersion = Assembly.GetExecutingAssembly().GetName().Version ?? new Ve
 string versionString = $"V{appVersion.Major}.{appVersion.Minor}.{appVersion.Build}.{appVersion.Revision}";
 Console.WriteLine($"file-distributor version {versionString}\n");
 
+int verbosityLevel = 0;
+
 // Data size conversions
 const long GigabyteSize = 1024L * 1024L * 1024L;
 
@@ -78,6 +80,18 @@ if (monitorWaitSeconds <= 0)
 {
     monitorWaitSeconds = MonitorWaitSecondsDefault;
 }
+
+List<Argument> verboseArgs = arguments.FindAll(x => x.Name == "verbose");
+if (verboseArgs.Count > 1)
+    verbosityLevel = verboseArgs.Count;
+else if (verboseArgs.Count == 1)
+{ 
+    if (!int.TryParse(verboseArgs[0].Value, out verbosityLevel))
+    {
+        // couldn't parse the argument value, so just assuming called it as "-v"
+        verbosityLevel = 1;
+    }
+}
 ;
 // ignore information
 List<string> ignoredKeywords = new List<string>();
@@ -146,10 +160,14 @@ while (enableMonitorMode)
 }
 
 // Print config summary
-Console.WriteLine(@$"Config:
+Print(@$"Config:
 Folder A: {aPath}
 Folder B: {bPath}
-Size of A: {sizeGB}");
+Size of A: {sizeGB}", 0);
+foreach(string keyword in ignoredKeywords)
+{
+    Print($"Ignored Keyword: {keyword}", 1);
+}
 
 void DistributeFiles()
 {
@@ -226,12 +244,13 @@ void TryMoveFile(FileInfo file, string destinationPath, bool isATarget)
     string parentDirectoryPath = Path.GetDirectoryName(destinationPath) ?? string.Empty;
     if (!Directory.Exists(parentDirectoryPath) && !string.IsNullOrEmpty(parentDirectoryPath))
         Directory.CreateDirectory(parentDirectoryPath);
-    Console.WriteLine($"[{(isATarget ? "B -> A" : "A -> B")}] {file.FullName} TO {destinationPath}");
+    Print($"[{(isATarget ? "B -> A" : "A -> B")}] {file.FullName} TO {destinationPath}", 0);
     file.MoveTo(destinationPath, false);
 }
 
 List<string> GetFiles(string path)
 {
+    Print($"Discovering Files: {path}", 1);
     List<string> files = new List<string>();
     files.AddRange(Directory.GetFiles(path));
     foreach (string subDir in Directory.GetDirectories(path))
@@ -245,6 +264,12 @@ void PrintInColour(string message, ConsoleColor colour)
     Console.ForegroundColor = colour;
     Console.WriteLine(message);
     Console.ForegroundColor = prevColour;
+}
+
+void Print(string message, int requiredVerbosity)
+{
+    if (verbosityLevel >= requiredVerbosity)
+        Console.WriteLine(message);
 }
 
 void PrintHelp()
