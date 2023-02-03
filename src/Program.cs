@@ -115,6 +115,12 @@ while (enableMonitorMode)
     Thread.Sleep(300000);
 }
 
+// Print config summary
+Console.WriteLine(@$"Config:
+Folder A: {aPath}
+Folder B: {bPath}
+Size of A: {sizeGB}");
+
 void DistributeFiles()
 {
     // Set variables
