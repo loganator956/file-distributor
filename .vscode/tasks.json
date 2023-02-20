@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/file-distributor.csproj",
+                "${workspaceFolder}/src/file-distributor.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/file-distributor.csproj",
+                "${workspaceFolder}/src/file-distributor.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/file-distributor.csproj"
+                "${workspaceFolder}/src/file-distributor.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
