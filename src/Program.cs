@@ -182,14 +182,14 @@ void DistributeFiles()
     fileListA.AddRange(GetFiles(folderA));
     foreach (string file in fileListA)
     {
-        string relPath = file.Replace(folderA, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
+        string relPath = file.Replace(folderA, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\').TrimStart('/');
         files.Add(new(file, relPath));
     }
     List<string> fileListB = new List<string>();
     fileListB.AddRange(GetFiles(folderB));
     foreach (string file in fileListB)
     {
-        string relPath = file.Replace(folderB, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\');
+        string relPath = file.Replace(folderB, "", StringComparison.CurrentCultureIgnoreCase).TrimStart('\\').TrimStart('/');
         files.Add(new(file, relPath));
     }
 
