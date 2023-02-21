@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace file_distributor
+﻿namespace file_distributor.Arguments
 {
-    internal static class ArgumentProcessor
+    internal static class ArgumentParser
     {
         public static bool TryGetEnvVariable(string name, out Argument? arg)
         {
@@ -42,7 +36,7 @@ namespace file_distributor
                         }
                         else
                         {
-                            throw new ArgumentMappingException($"Couldn't find mapped argument of short name {c}");
+                            Console.WriteLine($"Couldn't find mapped argument of short name {c}");
                         }
                     }
                 }
@@ -75,7 +69,6 @@ namespace file_distributor
 
                 arguments.Add(new Argument(argument.TrimStart('-'), value));
             }
-
             return arguments;
         }
     }

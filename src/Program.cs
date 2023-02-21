@@ -2,64 +2,43 @@
 using System.Reflection;
 using System.Xml;
 using file_distributor;
+using file_distributor.Arguments;
 
 // Version Printing
 Version appVersion = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(-1, -1);
 string versionString = $"V{appVersion.Major}.{appVersion.Minor}.{appVersion.Build}.{appVersion.Revision}";
 Console.WriteLine($"file-distributor version {versionString}\n");
 
-int verbosityLevel = 0;
-
 // Data size conversions
 const long GigabyteSize = 1024L * 1024L * 1024L;
 
 // Retrieve arguments
-List<Argument> arguments = ArgumentProcessor.Process(args);
-
-string aPath = "";
-string bPath = "";
-string argSize = "";
+ArgumentsList newArgs = new ArgumentsList(args);
+List<Argument> arguments = ArgumentParser.Process(args);
 const int MonitorWaitSecondsDefault = 300;
-int monitorWaitSeconds = MonitorWaitSecondsDefault;
 
 // Try get arguments
-
-if (bool.TryParse(arguments.Find(x => x.Name == "help").Value, out _))
+if (newArgs.TryGetValue("help", "", out _))
 {
     PrintHelp();
     Environment.Exit(0);
 }
 
-aPath = arguments.Find(x => x.Name == "folder-a").Value;
-Argument? _tempArg;
-ArgumentProcessor.TryGetEnvVariable("FD_FOLDER_A", out _tempArg);
-if (_tempArg is not null)
-    aPath = _tempArg.Value.Value;
+// TODO: Change to newArgs.GetValue instead of arguments.Find
 
+string aPath = newArgs.GetValue("folder-a", "FD_FOLDER_A", string.Empty);
 if (string.IsNullOrEmpty(aPath))
 {
     PrintInColour("--folder-a not set", ConsoleColor.Red);
     Environment.Exit(1);
 }
-
-
-bPath = arguments.Find(x => x.Name == "folder-b").Value;
-ArgumentProcessor.TryGetEnvVariable("FD_FOLDER_B", out _tempArg);
-if (_tempArg is not null)
-    bPath = _tempArg.Value.Value;
-
+string bPath = newArgs.GetValue("folder-b", "FD_FOLDER_B", string.Empty);
 if (string.IsNullOrEmpty(bPath))
 {
     PrintInColour("--folder-b not set", ConsoleColor.Red);
     Environment.Exit(1);
 }
-
-
-argSize = arguments.Find(x => x.Name == "size").Value;
-ArgumentProcessor.TryGetEnvVariable("FD_SIZE", out _tempArg);
-if (_tempArg is not null)
-    argSize = _tempArg.Value.Value;
-
+string argSize = newArgs.GetValue("size", "FD_SIZE", string.Empty);
 if (string.IsNullOrEmpty(argSize))
 {
     PrintInColour("--size not set", ConsoleColor.Red);
@@ -67,46 +46,29 @@ if (string.IsNullOrEmpty(argSize))
 }
 
 // Optional Data
-bool enableMonitorMode = bool.TryParse((arguments.Find(x => x.Name == "monitor")).Value, out _);
-ArgumentProcessor.TryGetEnvVariable("FD_MONITOR_MODE", out _tempArg);
-if (_tempArg is not null)
-    bool.TryParse(_tempArg.Value.Value, out enableMonitorMode);
-
-int.TryParse(arguments.Find(x => x.Name == "wait-interval").Value, out monitorWaitSeconds);
-ArgumentProcessor.TryGetEnvVariable("FD_MONITOR_WAIT_INTERVAL", out _tempArg);
-if (_tempArg is not null)
-    int.TryParse(_tempArg.Value.Value, out monitorWaitSeconds);
-if (monitorWaitSeconds <= 0)
+bool enableMonitorMode = false;
+if (!bool.TryParse(newArgs.GetValue("monitor", "FD_MONITOR_MODE", "false"), out enableMonitorMode))
 {
-    monitorWaitSeconds = MonitorWaitSecondsDefault;
+    PrintInColour("Unknown value for monitor mode", ConsoleColor.Red);
+    Environment.Exit(1);
 }
 
-List<Argument> verboseArgs = arguments.FindAll(x => x.Name == "verbose");
-if (verboseArgs.Count > 1)
-    verbosityLevel = verboseArgs.Count;
-else if (verboseArgs.Count == 1)
-{ 
-    if (!int.TryParse(verboseArgs[0].Value, out verbosityLevel))
-    {
-        // couldn't parse the argument value, so just assuming called it as "-v"
-        verbosityLevel = 1;
-    }
+int monitorWaitSeconds = MonitorWaitSecondsDefault;
+if (!int.TryParse(newArgs.GetValue("wait-interval", "FD_MONITOR_WAIT_INTERVAL", MonitorWaitSecondsDefault.ToString()), out monitorWaitSeconds))
+{
+    PrintInColour("Unknown value for monitor wait seconds", ConsoleColor.Red);
+    Environment.Exit(1);
 }
-;
+if (monitorWaitSeconds <= 0)
+    monitorWaitSeconds = MonitorWaitSecondsDefault;
+
+
 // ignore information
 List<string> ignoredKeywords = new List<string>();
-foreach(Argument arg in arguments.FindAll(x => x.Name == "ignore-keyword"))
-{
-    ignoredKeywords.Add(arg.Value);
-}
-string ignoredFilePath = arguments.Find(x => x.Name == "ignore-file").Value;
-ArgumentProcessor.TryGetEnvVariable("FD_IGNORE_FILE", out _tempArg);
-if (_tempArg is not null)
-    ignoredFilePath = _tempArg.Value.Value;
 
-if (!string.IsNullOrEmpty(ignoredFilePath))
+string ignoredFilePath = string.Empty;
+if (newArgs.TryGetValue("ignore-file", "FD_IGNORE_FILE", out ignoredFilePath))
 {
-    // ignore file specified 
     // read ignore file
     if (System.IO.File.Exists(ignoredFilePath))
     {
@@ -120,10 +82,9 @@ if (!string.IsNullOrEmpty(ignoredFilePath))
     }
     else
     {
-        PrintInColour($"Cannot find {ignoredFilePath}", ConsoleColor.Red);
+        throw new FileNotFoundException($"Cannot find ignore file at {ignoredFilePath}", ignoredFilePath);
     }
 }
-
 // Verify argument data
 
 int sizeGB = -1;
@@ -163,10 +124,10 @@ while (enableMonitorMode)
 Print(@$"Config:
 Folder A: {aPath}
 Folder B: {bPath}
-Size of A: {sizeGB}", 0);
+Size of A: {sizeGB}");
 foreach(string keyword in ignoredKeywords)
 {
-    Print($"Ignored Keyword: {keyword}", 1);
+    Print($"Ignored Keyword: {keyword}");
 }
 
 void DistributeFiles()
@@ -244,13 +205,13 @@ void TryMoveFile(FileInfo file, string destinationPath, bool isATarget)
     string parentDirectoryPath = Path.GetDirectoryName(destinationPath) ?? string.Empty;
     if (!Directory.Exists(parentDirectoryPath) && !string.IsNullOrEmpty(parentDirectoryPath))
         Directory.CreateDirectory(parentDirectoryPath);
-    Print($"[{(isATarget ? "B -> A" : "A -> B")}] {file.FullName} TO {destinationPath}", 0);
+    Print($"[{(isATarget ? "B -> A" : "A -> B")}] {file.FullName} TO {destinationPath}");
     file.MoveTo(destinationPath, false);
 }
 
 List<string> GetFiles(string path)
 {
-    Print($"Discovering Files: {path}", 1);
+    Print($"Discovering Files: {path}");
     List<string> files = new List<string>();
     files.AddRange(Directory.GetFiles(path));
     foreach (string subDir in Directory.GetDirectories(path))
@@ -266,10 +227,9 @@ void PrintInColour(string message, ConsoleColor colour)
     Console.ForegroundColor = prevColour;
 }
 
-void Print(string message, int requiredVerbosity)
+void Print(string message)
 {
-    if (verbosityLevel >= requiredVerbosity)
-        Console.WriteLine(message);
+    Console.WriteLine(message);
 }
 
 void PrintHelp()
