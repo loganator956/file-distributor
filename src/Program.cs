@@ -26,31 +26,10 @@ namespace file_distributor
             }
 
             string aPath = arguments.GetValue("folder-a", "FD_FOLDER_A", string.Empty);
-            if (string.IsNullOrEmpty(aPath))
-            {
-                Debugger.PrintInColour("--folder-a not set", ConsoleColor.Red);
-                Environment.Exit(1);
-            }
             string bPath = arguments.GetValue("folder-b", "FD_FOLDER_B", string.Empty);
-            if (string.IsNullOrEmpty(bPath))
-            {
-                Debugger.PrintInColour("--folder-b not set", ConsoleColor.Red);
-                Environment.Exit(1);
-            }
             string argSize = arguments.GetValue("size", "FD_SIZE", string.Empty);
-            if (string.IsNullOrEmpty(argSize))
-            {
-                Debugger.PrintInColour("--size not set", ConsoleColor.Red);
-                Environment.Exit(1);
-            }
 
-            // Optional Data
-            bool enableMonitorMode = false;
-            if (!bool.TryParse(arguments.GetValue("monitor", "FD_MONITOR_MODE", "false"), out enableMonitorMode))
-            {
-                Debugger.PrintInColour("Unknown value for monitor mode", ConsoleColor.Yellow);
-                Environment.Exit(1);
-            }
+            string argEnableMonitor = arguments.GetValue("monitor", "FD_MONITOR_MODE", "false");
 
             int monitorWaitSeconds = MonitorWaitSecondsDefault;
             if (!int.TryParse(arguments.GetValue("wait-interval", "FD_MONITOR_WAIT_INTERVAL", MonitorWaitSecondsDefault.ToString()), out monitorWaitSeconds))
@@ -94,6 +73,10 @@ namespace file_distributor
             }
             // create distributor
             Distributor distributor = new Distributor(aPath, bPath, size);
+
+            bool enableMonitorMode = false;
+            if (!bool.TryParse(argEnableMonitor, out enableMonitorMode))
+                Debugger.PrintInColour($"Cannot parse {argEnableMonitor} to bool", ConsoleColor.Yellow);
 
             // call once if normal mode
             if (!enableMonitorMode)
