@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using file_distributor.Arguments;
+using file_distributor.Debugging;
 
 namespace file_distributor
 {
@@ -33,19 +34,19 @@ namespace file_distributor
             string aPath = newArgs.GetValue("folder-a", "FD_FOLDER_A", string.Empty);
             if (string.IsNullOrEmpty(aPath))
             {
-                PrintInColour("--folder-a not set", ConsoleColor.Red);
+                Debugger.PrintInColour("--folder-a not set", ConsoleColor.Red);
                 Environment.Exit(1);
             }
             string bPath = newArgs.GetValue("folder-b", "FD_FOLDER_B", string.Empty);
             if (string.IsNullOrEmpty(bPath))
             {
-                PrintInColour("--folder-b not set", ConsoleColor.Red);
+                Debugger.PrintInColour("--folder-b not set", ConsoleColor.Red);
                 Environment.Exit(1);
             }
             string argSize = newArgs.GetValue("size", "FD_SIZE", string.Empty);
             if (string.IsNullOrEmpty(argSize))
             {
-                PrintInColour("--size not set", ConsoleColor.Red);
+                Debugger.PrintInColour("--size not set", ConsoleColor.Red);
                 Environment.Exit(1);
             }
 
@@ -53,14 +54,14 @@ namespace file_distributor
             bool enableMonitorMode = false;
             if (!bool.TryParse(newArgs.GetValue("monitor", "FD_MONITOR_MODE", "false"), out enableMonitorMode))
             {
-                PrintInColour("Unknown value for monitor mode", ConsoleColor.Red);
+                Debugger.PrintInColour("Unknown value for monitor mode", ConsoleColor.Red);
                 Environment.Exit(1);
             }
 
             int monitorWaitSeconds = MonitorWaitSecondsDefault;
             if (!int.TryParse(newArgs.GetValue("wait-interval", "FD_MONITOR_WAIT_INTERVAL", MonitorWaitSecondsDefault.ToString()), out monitorWaitSeconds))
             {
-                PrintInColour("Unknown value for monitor wait seconds", ConsoleColor.Red);
+                Debugger.PrintInColour("Unknown value for monitor wait seconds", ConsoleColor.Red);
                 Environment.Exit(1);
             }
             if (monitorWaitSeconds <= 0)
@@ -94,22 +95,22 @@ namespace file_distributor
             int sizeGB = -1;
             if (!int.TryParse(argSize, out sizeGB))
             {
-                PrintInColour($"Cannot parse argument 0 ({argSize}) to int. Ensure you only entering a plain integer number, eg '2'", ConsoleColor.Red);
+                Debugger.PrintInColour($"Cannot parse argument 0 ({argSize}) to int. Ensure you only entering a plain integer number, eg '2'", ConsoleColor.Red);
                 Environment.Exit(1);
             }
             if (!Directory.Exists(aPath))
             {
-                PrintInColour($"Cannot find folder A ({aPath})", ConsoleColor.Red);
+                Debugger.PrintInColour($"Cannot find folder A ({aPath})", ConsoleColor.Red);
                 Environment.Exit(1);
             }
             if (!Directory.Exists(bPath))
             {
-                PrintInColour($"Cannot find folder B ({bPath})", ConsoleColor.Red);
+                Debugger.PrintInColour($"Cannot find folder B ({bPath})", ConsoleColor.Red);
                 Environment.Exit(1);
             }
             if (sizeGB <= 0)
             {
-                PrintInColour($"Warning: SizeGB is <=0. This will mean all files will be sent to folder B", ConsoleColor.Yellow);
+                Debugger.PrintInColour($"Warning: SizeGB is <=0. This will mean all files will be sent to folder B", ConsoleColor.Yellow);
                 Thread.Sleep(1000);
             }
 
@@ -223,14 +224,6 @@ Size of A: {sizeGB}");
             foreach (string subDir in Directory.GetDirectories(path))
                 files.AddRange(GetFiles(subDir));
             return files;
-        }
-
-        static void PrintInColour(string message, ConsoleColor colour)
-        {
-            ConsoleColor prevColour = Console.ForegroundColor;
-            Console.ForegroundColor = colour;
-            Console.WriteLine(message);
-            Console.ForegroundColor = prevColour;
         }
 
         static void Print(string message)
