@@ -16,8 +16,8 @@ namespace file_distributor
             if (!Directory.Exists(b))
                 throw new DirectoryNotFoundException($"Couldn't find folder b at {b}");
             sizeGB = size;
-            if (sizeGB <= 0)
-                throw new ArgumentOutOfRangeException("sizeGB", "sizeGB is less than, or equal to, 0");
+            if (sizeGB < 0)
+                throw new ArgumentOutOfRangeException("sizeGB", "sizeGB is less than 0");
             ignoredKeywords = new List<string>();
         }
 
