@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using file_distributor.Arguments;
+using Mono.Options;
 using file_distributor.Debugging;
 
 namespace file_distributor
@@ -11,82 +11,60 @@ namespace file_distributor
             // Version Printing
             PrintVersion();
 
-            // Retrieve arguments
-            ArgumentsList arguments = new ArgumentsList(args);
-
             // Set defaults values
             const int MonitorWaitSecondsDefault = 300;
 
-            // Try get arguments
-            #region Argument Retrieval
-            if (arguments.TryGetValue("help", "", out _))
-            {
-                PrintHelp();
-                Environment.Exit(0);
-            }
-
-            string aPath = arguments.GetValue("folder-a", "FD_FOLDER_A", string.Empty);
-            string bPath = arguments.GetValue("folder-b", "FD_FOLDER_B", string.Empty);
-            string argSize = arguments.GetValue("size", "FD_SIZE", string.Empty);
-
-            string argEnableMonitor = arguments.GetValue("monitor", "FD_MONITOR_MODE", "false");
-
+            string aPath, bPath;
+            int size;
             int monitorWaitSeconds = MonitorWaitSecondsDefault;
-            if (!int.TryParse(arguments.GetValue("wait-interval", "FD_MONITOR_WAIT_INTERVAL", MonitorWaitSecondsDefault.ToString()), out monitorWaitSeconds))
-            {
-                Debugger.PrintInColour("Unknown value for monitor wait seconds", ConsoleColor.Yellow);
-                Environment.Exit(1);
-            }
-            if (monitorWaitSeconds <= 0)
-                monitorWaitSeconds = MonitorWaitSecondsDefault;
-
+            
             // ignore information
             List<string> ignoredKeywords = new List<string>();
 
             string ignoredFilePath = string.Empty;
-            if (arguments.TryGetValue("ignore-file", "FD_IGNORE_FILE", out ignoredFilePath))
+            bool showHelp = false;
+            // Get optoions
+            OptionSet options = new()
             {
-                // read ignore file
-                if (System.IO.File.Exists(ignoredFilePath))
-                {
-                    string[] lines = System.IO.File.ReadAllLines(ignoredFilePath);
-                    foreach (string line in lines)
-                    {
-                        if (line.StartsWith('#'))
-                            continue;
-                        ignoredKeywords.Add(line);
-                    }
-                }
-                else
-                {
-                    throw new FileNotFoundException($"Cannot find ignore file at {ignoredFilePath}", ignoredFilePath);
-                }
-            }
-            #endregion
+                { "h|help", "show this message and exit", v => showHelp = v != null },
+                { "a|folder-a", "specify path for folder A.", v=> aPath = v }
+            };
 
-            // Convert arguments into their correct datatypes?
-            int size = 0;
-            if (!int.TryParse(argSize, out size))
+            List<string> extra;
+            try
             {
-                Debugger.PrintInColour($"Unknown value for arg size {argSize}", ConsoleColor.Red);
-                Environment.Exit(1);
+                extra = options.Parse(args);
+                ;
             }
-            // create distributor
-            Distributor distributor = new Distributor(aPath, bPath, size);
+            catch (OptionException e)
+            {
+                Console.WriteLine("e");
+                Console.WriteLine("Try file-distributor --help for more information");
+            }
+            /*var p = new OptionSet() {
+                { "n|name=", "the {NAME} of someone to greet.",
+       v => names.Add (v) },
+    { "r|repeat=",
+       "the number of {TIMES} to repeat the greeting.\n" +
+          "this must be an integer.",
+        (int v) => repeat = v },
+    { "v", "increase debug message verbosity",
+       v => { if (v != null) ++verbosity; } },
+    { "h|help",  "show this message and exit",
+       v => show_help = v != null },
+};*/
 
             bool enableMonitorMode = false;
-            if (!bool.TryParse(argEnableMonitor, out enableMonitorMode))
-                Debugger.PrintInColour($"Cannot parse {argEnableMonitor} to bool", ConsoleColor.Yellow);
 
             // call once if normal mode
             if (!enableMonitorMode)
             {
-                distributor.DistributeFiles();
+                //distributor.DistributeFiles();
             }
             // call repeatedly in monitor mode
             while (enableMonitorMode)
             {
-                distributor.DistributeFiles();
+                //distributor.DistributeFiles();
                 Thread.Sleep(monitorWaitSeconds * 1000);
             }
         }

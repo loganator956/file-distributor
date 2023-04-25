@@ -1,11 +1,8 @@
 {
   "profiles": {
     "file-distributor": {
-      "commandName": "Project"
-    },
-    "Profile 1": {
       "commandName": "Project",
-      "commandLineArgs": "-a \"E:\\test\" -b \"E:\\test2\" -s 1 -f \"E:\\ignore.txt\" -v 2"
+      "commandLineArgs": "-h -a \"/test/path\""
     }
   }
 }
