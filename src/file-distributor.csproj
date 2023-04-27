@@ -6,9 +6,10 @@
     <RootNamespace>file_distributor</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.2.1.0</Version>
+    <Version>1.3.0.0</Version>
 	<PublishSingleFile>true</PublishSingleFile>
 	<PublishTrimmed>true</PublishTrimmed>
+	<Title>File Distributor</Title>
   </PropertyGroup>
 
   <ItemGroup>
