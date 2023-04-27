@@ -2,7 +2,7 @@
   "profiles": {
     "file-distributor": {
       "commandName": "Project",
-      "commandLineArgs": "-h -a \"/test/path\""
+      "commandLineArgs": "-h -a \"/test/path\" -b /test/folderb -s 0.5gb"
     }
   }
 }

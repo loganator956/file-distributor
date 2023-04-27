@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using Mono.Options;
 using file_distributor.Debugging;
+using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
 
 namespace file_distributor
 {
@@ -11,12 +13,8 @@ namespace file_distributor
             // Version Printing
             PrintVersion();
 
-            // Set defaults values
-            const int MonitorWaitSecondsDefault = 300;
-
-            string aPath, bPath;
-            int size;
-            int monitorWaitSeconds = MonitorWaitSecondsDefault;
+            string aPath = "", bPath = "", sizeString= "";
+            long size;
             
             // ignore information
             List<string> ignoredKeywords = new List<string>();
@@ -26,66 +24,42 @@ namespace file_distributor
             // Get optoions
             OptionSet options = new()
             {
-                { "h|help", "show this message and exit", v => showHelp = v != null },
-                { "a|folder-a", "specify path for folder A.", v=> aPath = v }
+                { "a=|folder-a", "specify path for folder A.", v=> aPath = v },
+                { "b=|folder-b", "specify path for folder B.", v=> bPath = v },
+                { "s=|size", "specify the maximum size of folder A", v => sizeString = v},
+                { "h|help", "show this message and exit", v => showHelp = v != null }
             };
 
+            if (showHelp) 
+            {
+                options.WriteOptionDescriptions(Console.Out);
+                return;
+            }
             List<string> extra;
             try
             {
                 extra = options.Parse(args);
-                ;
             }
             catch (OptionException e)
             {
                 Console.WriteLine("e");
                 Console.WriteLine("Try file-distributor --help for more information");
             }
-            /*var p = new OptionSet() {
-                { "n|name=", "the {NAME} of someone to greet.",
-       v => names.Add (v) },
-    { "r|repeat=",
-       "the number of {TIMES} to repeat the greeting.\n" +
-          "this must be an integer.",
-        (int v) => repeat = v },
-    { "v", "increase debug message verbosity",
-       v => { if (v != null) ++verbosity; } },
-    { "h|help",  "show this message and exit",
-       v => show_help = v != null },
-};*/
-
-            bool enableMonitorMode = false;
-
-            // call once if normal mode
-            if (!enableMonitorMode)
+            size = ConvertSizeToBytes(sizeString);
+            Console.WriteLine($@"File Distributor Properties:
+A Path: {aPath}
+B Path: {bPath}
+Size of A Path {size} bytes ({sizeString})");
+            try
             {
-                //distributor.DistributeFiles();
+                Distributor dist = new Distributor(aPath, bPath, size);
+                dist.DistributeFiles();
             }
-            // call repeatedly in monitor mode
-            while (enableMonitorMode)
+            catch (DirectoryNotFoundException dirNotFound)
             {
-                //distributor.DistributeFiles();
-                Thread.Sleep(monitorWaitSeconds * 1000);
+                Console.WriteLine($"Couldn't find a directory: {dirNotFound.Message}");
+                Environment.Exit(1);
             }
-        }
-
-        static void PrintHelp()
-        {
-            Console.WriteLine(@"file-distributor help
-REQUIRED OPTIONS
-SHORT   LONG            DESC
--a      --folder-a      Path for folder A
--b      --folder-b      Path for folder B
--s      --size          Maximum sized for folder A
-
-OPTIONAL OPTIONS
-SHORT   LONG                DESC
--m      --monitor           Monitor mode
-##-i      --ignore-keyword    Specify a keyword to ignore (Can be used multiple times)
--h      --help              Display this help page
--f      --ignore-file       Specifies a path to a file containing ignored keywords. (Each line is a separate keyword. Ignores lines starting with #)
-##-v      --verbose           Specifies the verbosity level. (Either by calling argument multiple times or specifying a value for argument)
--w      --wait-interval     Specifies the amount of time (seconds) between running the distribute files in ""monitor"" mode");
         }
 
         static void PrintVersion()
@@ -93,6 +67,38 @@ SHORT   LONG                DESC
             Version appVersion = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(-1, -1);
             string versionString = $"V{appVersion.Major}.{appVersion.Minor}.{appVersion.Build}.{appVersion.Revision}";
             Console.WriteLine($"file-distributor version {versionString}\n");
+        }
+
+        static long ConvertSizeToBytes(string sizeString)
+        {
+            long byteSize = 0;
+            Match match = Regex.Match(sizeString, @"(\d*\.?\d*)(\w{1,3})");
+            double size = double.Parse(match.Groups[1].Value);
+            // TODO: Make this bit nicer
+            switch(match.Groups[2].Value.ToLower())
+            {
+                case "kb":
+                    byteSize = (long)Math.Round(size * 1000);
+                    break;
+                case "kib":
+                    byteSize = (long)Math.Round(size * 1024);
+                    break;
+                case "mb":
+                    byteSize = (long)Math.Round(size * 1000L * 1000L);
+                    break;
+                case "mib":
+                    byteSize = (long)Math.Round(size * 1024L * 1024L);
+                    break;
+                case "gb":
+                    byteSize = (long)Math.Round(size * 1000L * 1000L * 1000L);
+                    break;
+                case "gib":
+                    byteSize = (long)Math.Round(size * 1024L * 1024L * 1024L);
+                    break;
+                default:
+                    throw new ArgumentException($"{sizeString} has unrecognised unit");
+            }
+            return byteSize;
         }
     }
 }
