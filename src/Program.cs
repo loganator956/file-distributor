@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
-using file_distributor.Arguments;
+using Mono.Options;
 using file_distributor.Debugging;
+using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
 
 namespace file_distributor
 {
@@ -11,103 +13,48 @@ namespace file_distributor
             // Version Printing
             PrintVersion();
 
-            // Retrieve arguments
-            ArgumentsList arguments = new ArgumentsList(args);
-
-            // Set defaults values
-            const int MonitorWaitSecondsDefault = 300;
-
-            // Try get arguments
-            #region Argument Retrieval
-            if (arguments.TryGetValue("help", "", out _))
+            string aPath = "", bPath = "", sizeString= "";
+            long size;
+            bool showHelp = false;
+            // Get optoions
+            OptionSet options = new()
             {
-                PrintHelp();
-                Environment.Exit(0);
+                { "a=|folder-a", "specify path for folder A.", v=> aPath = v },
+                { "b=|folder-b", "specify path for folder B.", v=> bPath = v },
+                { "s=|size", "specify the maximum size of folder A", v => sizeString = v},
+                { "h|help", "show this message and exit", v => showHelp = v != null }
+            };
+
+            if (showHelp) 
+            {
+                options.WriteOptionDescriptions(Console.Out);
+                return;
             }
-
-            string aPath = arguments.GetValue("folder-a", "FD_FOLDER_A", string.Empty);
-            string bPath = arguments.GetValue("folder-b", "FD_FOLDER_B", string.Empty);
-            string argSize = arguments.GetValue("size", "FD_SIZE", string.Empty);
-
-            string argEnableMonitor = arguments.GetValue("monitor", "FD_MONITOR_MODE", "false");
-
-            int monitorWaitSeconds = MonitorWaitSecondsDefault;
-            if (!int.TryParse(arguments.GetValue("wait-interval", "FD_MONITOR_WAIT_INTERVAL", MonitorWaitSecondsDefault.ToString()), out monitorWaitSeconds))
+            List<string> extra;
+            try
             {
-                Debugger.PrintInColour("Unknown value for monitor wait seconds", ConsoleColor.Yellow);
+                extra = options.Parse(args);
+            }
+            catch (OptionException e)
+            {
+                Console.WriteLine("e");
+                Console.WriteLine("Try file-distributor --help for more information");
+            }
+            size = ConvertSizeToBytes(sizeString);
+            Console.WriteLine($@"File Distributor Properties:
+A Path: {aPath}
+B Path: {bPath}
+Size of A Path {size} bytes ({sizeString})");
+            try
+            {
+                Distributor dist = new Distributor(aPath, bPath, size);
+                dist.DistributeFiles();
+            }
+            catch (DirectoryNotFoundException dirNotFound)
+            {
+                Console.WriteLine($"Couldn't find a directory: {dirNotFound.Message}");
                 Environment.Exit(1);
             }
-            if (monitorWaitSeconds <= 0)
-                monitorWaitSeconds = MonitorWaitSecondsDefault;
-
-            // ignore information
-            List<string> ignoredKeywords = new List<string>();
-
-            string ignoredFilePath = string.Empty;
-            if (arguments.TryGetValue("ignore-file", "FD_IGNORE_FILE", out ignoredFilePath))
-            {
-                // read ignore file
-                if (System.IO.File.Exists(ignoredFilePath))
-                {
-                    string[] lines = System.IO.File.ReadAllLines(ignoredFilePath);
-                    foreach (string line in lines)
-                    {
-                        if (line.StartsWith('#'))
-                            continue;
-                        ignoredKeywords.Add(line);
-                    }
-                }
-                else
-                {
-                    throw new FileNotFoundException($"Cannot find ignore file at {ignoredFilePath}", ignoredFilePath);
-                }
-            }
-            #endregion
-
-            // Convert arguments into their correct datatypes?
-            int size = 0;
-            if (!int.TryParse(argSize, out size))
-            {
-                Debugger.PrintInColour($"Unknown value for arg size {argSize}", ConsoleColor.Red);
-                Environment.Exit(1);
-            }
-            // create distributor
-            Distributor distributor = new Distributor(aPath, bPath, size);
-
-            bool enableMonitorMode = false;
-            if (!bool.TryParse(argEnableMonitor, out enableMonitorMode))
-                Debugger.PrintInColour($"Cannot parse {argEnableMonitor} to bool", ConsoleColor.Yellow);
-
-            // call once if normal mode
-            if (!enableMonitorMode)
-            {
-                distributor.DistributeFiles();
-            }
-            // call repeatedly in monitor mode
-            while (enableMonitorMode)
-            {
-                distributor.DistributeFiles();
-                Thread.Sleep(monitorWaitSeconds * 1000);
-            }
-        }
-
-        static void PrintHelp()
-        {
-            Console.WriteLine(@"file-distributor help
-REQUIRED OPTIONS
-SHORT   LONG            DESC
--a      --folder-a      Path for folder A
--b      --folder-b      Path for folder B
--s      --size          Maximum sized for folder A
-
-OPTIONAL OPTIONS
-SHORT   LONG                DESC
--m      --monitor           Monitor mode
-##-i      --ignore-keyword    Specify a keyword to ignore (Can be used multiple times)
--h      --help              Display this help page
--f      --ignore-file       Specifies a path to a file containing ignored keywords. (Each line is a separate keyword. Ignores lines starting with #)
-##-v      --verbose           Specifies the verbosity level. (Either by calling argument multiple times or specifying a value for argument)
--w      --wait-interval     Specifies the amount of time (seconds) between running the distribute files in ""monitor"" mode");
         }
 
         static void PrintVersion()
@@ -115,6 +62,38 @@ SHORT   LONG                DESC
             Version appVersion = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(-1, -1);
             string versionString = $"V{appVersion.Major}.{appVersion.Minor}.{appVersion.Build}.{appVersion.Revision}";
             Console.WriteLine($"file-distributor version {versionString}\n");
+        }
+
+        static long ConvertSizeToBytes(string sizeString)
+        {
+            long byteSize = 0;
+            Match match = Regex.Match(sizeString, @"(\d*\.?\d*)(\w{1,3})");
+            double size = double.Parse(match.Groups[1].Value);
+            // TODO: Make this bit nicer
+            switch(match.Groups[2].Value.ToLower())
+            {
+                case "kb":
+                    byteSize = (long)Math.Round(size * 1000);
+                    break;
+                case "kib":
+                    byteSize = (long)Math.Round(size * 1024);
+                    break;
+                case "mb":
+                    byteSize = (long)Math.Round(size * 1000L * 1000L);
+                    break;
+                case "mib":
+                    byteSize = (long)Math.Round(size * 1024L * 1024L);
+                    break;
+                case "gb":
+                    byteSize = (long)Math.Round(size * 1000L * 1000L * 1000L);
+                    break;
+                case "gib":
+                    byteSize = (long)Math.Round(size * 1024L * 1024L * 1024L);
+                    break;
+                default:
+                    throw new ArgumentException($"{sizeString} has unrecognised unit");
+            }
+            return byteSize;
         }
     }
 }

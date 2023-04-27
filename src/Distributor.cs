@@ -4,28 +4,26 @@ namespace file_distributor
     {
         public string aPath { get; private set; }
         public string bPath { get; private set; }
-        public int sizeGB { get; private set; }
+        public long maxSizeBytes { get; private set; }
         public List<string> ignoredKeywords { get; private set; }
 
-        public Distributor(string a, string b, int size)
+        public Distributor(string a, string b, long size)
         {
             aPath = a;
             if (!Directory.Exists(a))
-                throw new DirectoryNotFoundException($"Couldn't find folder a at {a}");
+                throw new DirectoryNotFoundException($"Distributor: Couldn't find folder a at {a}");
             bPath = b;
             if (!Directory.Exists(b))
-                throw new DirectoryNotFoundException($"Couldn't find folder b at {b}");
-            sizeGB = size;
-            if (sizeGB < 0)
-                throw new ArgumentOutOfRangeException("sizeGB", "sizeGB is less than 0");
+                throw new DirectoryNotFoundException($"Distributor: Couldn't find folder b at {b}");
+            maxSizeBytes = size;
+            if (maxSizeBytes < 0)
+                throw new ArgumentOutOfRangeException("size", "size is less than 0");
             ignoredKeywords = new List<string>();
         }
 
         public void DistributeFiles()
         {
-            const long GigabyteSize = 1024L * 1024L * 1024L;
             // Set variables
-            long maxSizeBytes = sizeGB * GigabyteSize;
             string folderA = aPath;
             string folderB = bPath;
 
@@ -116,7 +114,7 @@ namespace file_distributor
             return $@"Distributor:
 aPath = {aPath}
 bPath = {bPath}
-size = {sizeGB} GB";
+size = {maxSizeBytes} bytes";
         }
     }
 }
