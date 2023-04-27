@@ -15,11 +15,6 @@ namespace file_distributor
 
             string aPath = "", bPath = "", sizeString= "";
             long size;
-            
-            // ignore information
-            List<string> ignoredKeywords = new List<string>();
-
-            string ignoredFilePath = string.Empty;
             bool showHelp = false;
             // Get optoions
             OptionSet options = new()
