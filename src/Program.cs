@@ -13,7 +13,7 @@ namespace file_distributor
             // Version Printing
             PrintVersion();
 
-            string aPath = "", bPath = "", sizeString= "";
+            string aPath = "", bPath = "", sizeString= "", sortModeString="latest";
             long size;
             bool showHelp = false;
             // Get optoions
@@ -22,6 +22,7 @@ namespace file_distributor
                 { "a=|folder-a", "specify path for folder A.", v=> aPath = v },
                 { "b=|folder-b", "specify path for folder B.", v=> bPath = v },
                 { "s=|size", "specify the maximum size of folder A", v => sizeString = v},
+                { "m=|sort", "specify sort mode (Latest, Random)", v=> sortModeString = v },
                 { "h|help", "show this message and exit", v => showHelp = v != null }
             };
 
@@ -47,7 +48,7 @@ B Path: {bPath}
 Size of A Path {size} bytes ({sizeString})");
             try
             {
-                Distributor dist = new Distributor(aPath, bPath, size);
+                Distributor dist = new Distributor(aPath, bPath, size, sortModeString);
                 dist.DistributeFiles();
             }
             catch (DirectoryNotFoundException dirNotFound)
