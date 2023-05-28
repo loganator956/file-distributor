@@ -4,10 +4,11 @@ namespace file_distributor
     {
         public string aPath { get; private set; }
         public string bPath { get; private set; }
+        public string sortMode { get; private set; }
         public long maxSizeBytes { get; private set; }
         public List<string> ignoredKeywords { get; private set; }
 
-        public Distributor(string a, string b, long size)
+        public Distributor(string a, string b, long size, string sortMode)
         {
             aPath = a;
             if (!Directory.Exists(a))
@@ -19,6 +20,7 @@ namespace file_distributor
             if (maxSizeBytes < 0)
                 throw new ArgumentOutOfRangeException("size", "size is less than 0");
             ignoredKeywords = new List<string>();
+            this.sortMode = sortMode;
         }
 
         public void DistributeFiles()
@@ -46,8 +48,27 @@ namespace file_distributor
 
             // sort files by modified date and get the top x amount that fits into sizeGB
             // sort files
-            files.Sort((a, b) => a.Info.LastWriteTime.CompareTo(b.Info.LastWriteTime));
-            files.Reverse(); // make descending order
+            switch(sortMode.ToLower())
+            {
+                case "latest":
+                    files.Sort((a, b) => a.Info.LastWriteTime.CompareTo(b.Info.LastWriteTime));
+                    files.Reverse();
+                    break;
+                case "random":
+                    Random rng = new Random();
+                    int n = files.Count;
+                    while (n > 1)
+                    {
+                        int k = rng.Next(n--);
+                        File temp = files[n];
+                        files[n] = files[k];
+                        files[k] = temp;
+                    }
+                    break;
+                default:
+                    throw new ArgumentException("Unknown sort mode");
+            }
+             // make descending order
 
             long currentBytes = 0; // keeps track of the amount of bytes assigned to folder A
             for (int i = 0; i < files.Count; i++)
